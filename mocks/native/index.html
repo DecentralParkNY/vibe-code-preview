@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ghost-Toast | Vibersyn</title>
+    <style>
+        :root {
+            --obsidian: #050507;
+            --violet: #8b5cf6;
+            --electric: #c084fc;
+            --glass: rgba(20, 20, 25, 0.7);
+            --border: rgba(139, 92, 246, 0.3);
+        }
+        body, html {
+            margin: 0; padding: 0; height: 100%; overflow: hidden;
+            background: var(--obsidian);
+            font-family: 'Courier New', monospace;
+            color: white;
+        }
+        #canvas-bg {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at center, #1a1a2e 0%, #050507 100%);
+            z-index: -1;
+        }
+        .grid {
+            position: absolute; width: 200%; height: 200%;
+            top: -50%; left: -50%;
+            background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px);
+            background-size: 100px 100px;
+            transform: perspective(500px) rotateX(60deg);
+            opacity: 0.2;
+            animation: move 20s linear infinite;
+        }
+        @keyframes move { from { background-position: 0 0; } to { background-position: 0 100px; } }
+        
+        .hero {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            height: 100vh; text-align: center; pointer-events: none;
+        }
+        h1 {
+            font-size: 3rem; letter-spacing: -2px; margin: 0;
+            text-transform: uppercase; color: var(--electric);
+            text-shadow: 0 0 20px var(--violet);
+        }
+        p {
+            opacity: 0.6; font-size: 1rem; margin-bottom: 2rem;
+        }
+        .trigger-btn {
+            pointer-events: auto;
+            background: transparent; border: 1px solid var(--violet);
+            color: var(--violet); padding: 12px 24px; cursor: pointer;
+            font-family: inherit; font-weight: bold; transition: 0.3s;
+            box-shadow: 0 0 10px rgba(139, 92, 246, 0.2);
+        }
+        .trigger-btn:hover {
+            background: var(--violet); color: white; box-shadow: 0 0 30px var(--violet);
+        }
+        
+        #toast-container {
+            position: fixed; top: 40px; right: 40px; display: flex; flex-direction: column; gap: 15px;
+            z-index: 100;
+        }
+        .toast {
+            width: 320px; padding: 20px; background: var(--glass);
+            backdrop-filter: blur(12px); border: 1px solid var(--border);
+            border-left: 4px solid var(--violet); color: #ddd;
+            animation: slideIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            cursor: pointer;
+            transition: all 0.6s ease;
+        }
+        .toast.crystallize {
+            animation: crystallize 0.8s forwards;
+            border-color: var(--electric);
+            box-shadow: 0 0 40px rgba(192, 132, 252, 0.4);
+            transform: scale(0.9) translate(20px, 20px);
+            opacity: 0.8;
+        }
+        .toast-header { font-weight: bold; color: var(--electric); margin-bottom: 5px; display: flex; justify-content: space-between; }
+        .toast-body { font-size: 0.85rem; line-height: 1.4; }
+        
+        @keyframes slideIn { from { transform: translateX(120%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes crystallize { 
+            0% { transform: scale(1); } 
+            50% { transform: scale(1.05); filter: brightness(1.5); }
+            100% { transform: scale(0.9) translate(20px, 20px); opacity: 0.8; }
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas-bg"><div class="grid"></div></div>
+    
+    <div class="hero">
+        <h1>Ghost-Toast</h1>
+        <p>Ambient Idea Notifications for the Vibersyn Projector</p>
+        <button class="trigger-btn" onclick="spawnIdea()">TRIGGER IDEA DETECTION</button>
+    </div>
+
+    <div id="toast-container"></div>
+
+    <script>
+        const IDEAS = [
+            { title: "Real-time Audio Visualizer", body: "Detected: 'Let's make the audio waves dance in 3D'" },
+            { title: "Agent Orchestrator UI", body: "Detected: 'I want to see all agents as a node graph'" },
+            { title: "Voice-to-Code Bridge", body: "Detected: 'Just build a simple timer in React'" },
+            { title: "Spatial Memory Map", body: "Detected: 'Can we map these ideas to the room coordinates?'" }
+        ];
+
+        function spawnIdea() {
+            const container = document.getElementById('toast-container');
+            const idea = IDEAS[Math.floor(Math.random() * IDEAS.length)];
+            
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.innerHTML = `
+                <div class="toast-header"><span>NEW IDEA</span><span>⚡</span></div>
+                <div class="toast-body"><strong>${idea.title}</strong><br>${idea.body}</div>
+            `;
+            
+            toast.onclick = () => {
+                toast.classList.add('crystallize');
+                toast.innerHTML = `<div class="toast-header"><span>BUILDING...</span><span>⚙️</span></div><div class="toast-body">Agent is now synthesizing the build node.</div>`;
+            };
+
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                if (!toast.classList.contains('crystallize')) {
+                    toast.style.opacity = '0';
+                    toast.style.transform = 'translateX(20px)';
+                    setTimeout(() => toast.remove(), 600);
+                }
+            }, 6000);
+        }
+    </script>
+</body>
+</html>

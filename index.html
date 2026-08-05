@@ -1,0 +1,729 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>You are ADDING to an existing software project, not building — pitch</title>
+    <style>
+:root {
+  color-scheme: dark;
+  --bg: #05070d;
+  --fg: #e6f0ff;
+  --accent: #5ad1ff;
+  --muted: #8aa0c0;
+  --line: rgba(90, 209, 255, 0.18);
+  --wash: rgba(90, 209, 255, 0.06);
+  --ok: #9dffb0;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0;
+  overflow: hidden;
+  background: radial-gradient(circle at 50% 0%, #0b1426, var(--bg) 70%);
+  color: var(--fg);
+  font: 18px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  cursor: pointer;
+  user-select: none;
+  /* We own horizontal gestures (swipe nav); keep vertical panning native and
+     stop iOS Safari's edge back-swipe from stealing the drag. */
+  touch-action: pan-y;
+  overscroll-behavior: none;
+}
+.slide {
+  position: fixed;
+  inset: 0 0 4rem 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 4vh 7vw;
+  overflow: hidden;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(10px);
+  transition: opacity 220ms ease, transform 220ms ease, visibility 220ms;
+}
+.slide.active { opacity: 1; visibility: visible; transform: none; }
+.kicker {
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  font-size: clamp(0.8rem, 1.4vw, 1.1rem);
+  color: var(--accent);
+  margin: 0 0 0.8rem;
+}
+.headline {
+  font-size: clamp(2rem, 5.2vw, 4.2rem);
+  line-height: 1.08;
+  margin: 0 0 1.4rem;
+  max-width: 22ch;
+}
+.quote {
+  font-size: clamp(1.3rem, 2.8vw, 2.2rem);
+  line-height: 1.35;
+  color: var(--fg);
+  border-left: 4px solid var(--accent);
+  background: var(--wash);
+  border-radius: 0 14px 14px 0;
+  margin: 0 0 1.4rem;
+  padding: 1.2rem 1.6rem;
+  max-width: 42ch;
+}
+.hero .headline { font-size: clamp(1.4rem, 2.6vw, 2rem); color: var(--muted); }
+.hero .quote {
+  font-size: clamp(2.2rem, 5.4vw, 4.4rem);
+  line-height: 1.18;
+  border-left-width: 6px;
+  max-width: 30ch;
+}
+.para {
+  font-size: clamp(1.1rem, 2.2vw, 1.7rem);
+  color: var(--fg);
+  margin: 0 0 1rem;
+  max-width: 52ch;
+}
+.points {
+  margin: 0.2rem 0 0;
+  padding: 0;
+  list-style: none;
+  max-width: 56ch;
+}
+.points li {
+  font-size: clamp(1.05rem, 2vw, 1.6rem);
+  margin: 0 0 0.85rem;
+  padding-left: 1.5em;
+  position: relative;
+}
+.points li::before {
+  content: "\2192";
+  position: absolute;
+  left: 0;
+  color: var(--accent);
+}
+.mocks { display: flex; flex-direction: column; gap: 0.9rem; min-height: 0; }
+.mock-tabs { display: flex; gap: 0.9rem; flex-wrap: wrap; }
+.mock-tab {
+  font: inherit;
+  font-size: clamp(1rem, 1.8vw, 1.35rem);
+  padding: 0.9rem 1.9rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--wash);
+  color: var(--muted);
+  cursor: pointer;
+  transition: color 140ms ease, background 140ms ease, border-color 140ms ease;
+}
+.mock-tab:hover, .mock-tab[data-dwell-hot] { border-color: var(--accent); color: var(--fg); }
+.mock-tab.active { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+.mock-panels { position: relative; height: 52vh; }
+.mock-panel {
+  position: absolute;
+  inset: 0;
+  display: none;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.mock-panel.active { display: flex; }
+.mock-frame {
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: #0b1426;
+}
+.mock-missing {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  font-size: clamp(1.1rem, 2vw, 1.5rem);
+  background: var(--wash);
+}
+.mock-caption {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+  letter-spacing: 0.08em;
+}
+.decisions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.4rem;
+  margin-top: 0.6rem;
+}
+.decision {
+  font: inherit;
+  min-height: 22vh;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.8rem;
+  text-align: left;
+  color: var(--fg);
+  background: var(--wash);
+  border: 2px solid var(--line);
+  border-radius: 18px;
+  cursor: pointer;
+  transition: border-color 140ms ease, background 140ms ease, transform 140ms ease;
+}
+.decision:hover, .decision[data-dwell-hot] {
+  border-color: var(--accent);
+  background: rgba(90, 209, 255, 0.12);
+  transform: translateY(-2px);
+}
+.decision:disabled { opacity: 0.45; cursor: default; transform: none; }
+.decision.chosen { opacity: 1; border-color: var(--ok); background: rgba(157, 255, 176, 0.1); }
+.decision-label { font-size: clamp(1.5rem, 2.8vw, 2.4rem); font-weight: 650; }
+.decision-detail { color: var(--muted); font-size: clamp(0.95rem, 1.6vw, 1.25rem); }
+.decision-form {
+  display: flex;
+  gap: 0.8rem;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-top: 1.2rem;
+}
+.decision-form[hidden] { display: none; }
+.decision-hint { flex-basis: 100%; margin: 0; color: var(--accent); }
+.decision-input {
+  flex: 1;
+  min-width: 260px;
+  font: inherit;
+  font-size: 1.1rem;
+  padding: 0.9rem 1.1rem;
+  color: var(--fg);
+  background: rgba(5, 7, 13, 0.7);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  cursor: text;
+  user-select: text;
+}
+.decision-send {
+  font: inherit;
+  font-size: 1.05rem;
+  padding: 0.9rem 1.7rem;
+  color: var(--bg);
+  background: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: 12px;
+  cursor: pointer;
+}
+.decision-status {
+  min-height: 1.6em;
+  margin: 1rem 0 0;
+  color: var(--muted);
+  font-size: clamp(1rem, 1.8vw, 1.3rem);
+}
+.decision-status.ok { color: var(--ok); }
+.answers {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.1rem;
+  margin-top: 0.8rem;
+  max-width: 62ch;
+}
+.answer {
+  font: inherit;
+  font-size: clamp(1.2rem, 2.4vw, 1.9rem);
+  min-height: 13vh;
+  padding: 1.3rem 1.7rem;
+  display: flex;
+  align-items: center;
+  text-align: left;
+  color: var(--fg);
+  background: var(--wash);
+  border: 2px solid var(--line);
+  border-radius: 16px;
+  cursor: pointer;
+  transition: border-color 140ms ease, background 140ms ease, transform 140ms ease;
+}
+.answer:hover, .answer[data-dwell-hot] {
+  border-color: var(--accent);
+  background: rgba(90, 209, 255, 0.12);
+  transform: translateY(-2px);
+}
+.answer.chosen { border-color: var(--ok); background: rgba(157, 255, 176, 0.12); }
+.answer-status {
+  min-height: 1.6em;
+  margin: 1rem 0 0;
+  color: var(--muted);
+  font-size: clamp(1rem, 1.8vw, 1.3rem);
+}
+.answer-status.ok { color: var(--ok); }
+.take-home-row { display: flex; align-items: center; gap: 3rem; flex-wrap: wrap; }
+.take-home-qr {
+  flex: 0 0 auto;
+  width: clamp(220px, 34vh, 360px);
+  padding: 1.1rem;
+  background: #fff;
+  border-radius: 18px;
+}
+.take-home-qr svg { display: block; width: 100%; height: auto; }
+.take-home-copy { flex: 1 1 320px; }
+.take-home-url a { color: var(--accent); word-break: break-all; }
+.deckbar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 4rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0 2rem;
+  border-top: 1px solid var(--line);
+  background: rgba(5, 7, 13, 0.85);
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+.deckbar .dots { display: flex; gap: 0.55rem; }
+.dot {
+  width: 0.65rem;
+  height: 0.65rem;
+  border-radius: 50%;
+  border: 1px solid var(--accent);
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+}
+.dot.active { background: var(--accent); }
+.counter { color: var(--accent); min-width: 4ch; text-align: right; }
+    </style>
+  </head>
+  <body>
+    <section class="slide hero active" data-slide aria-label="Slide 1 of 7">
+      <p class="kicker">Heard in the room</p>
+      <h1 class="headline">The idea, verbatim</h1>
+      <blockquote class="quote">“You are ADDING to an existing software project, not building a new app from scratch.
+The repository is already cloned at /Users/wk/conductor/workspaces/vibecode-room/surabaya/builds/upid-2/repo. Read the real files there — they are the source of truth; the digest below is only a summary.
+
+What the repository looks like (auto-generated digest):
+This project appears to be: a React web front-end (Vite).
+
+Stack: Hono, React, Three.js, TypeScript, Vite
+Languages: TypeScript (30), HTML (3), Python (3), Shell (3)
+
+Top-level files: .github/, .gitignore, .smithers/, artifacts/, bun.lock, bunfig.toml, DESIGN.md, docs/, e2e/, fixtures/, gesture-wall/, index.html, ISSUES.md, package.json, playwright.config.ts, poc/, PROMPT.md, public/, README.md, run-room.sh, scripts/, src/, test/, tsconfig.json, vite.config.ts
+
+package.json: vibersyn — Vibersyn — an operating system for AI-agent work. Talk in a room; AI passively listens, suggests things to build, and steers many concurrent agent processes at once.
+
+Dependencies: @elizaos/core, @types/three, hono, qrcode, react, react-dom, smithers-orchestrator, three, ws, zod, @playwright/test, @types/bun, @types/qrcode, @types/react, … (+4)
+
+README excerpt:
+# Vibecode Room — Vibersyn
+
+Vibersyn is an ambient **idea room**: people talk, the room detects concrete
+*buildable* ideas via windowed model inference — passively, or on demand via
+**Idea Capture** mode — grounds each idea to the span of conversation it came from,
+and turns it into a running app. A projector UI shows the ideas forming and the
+agents building them.
+
+## Layout
+
+- **`src/`** — the Vibersyn app:
+  - `src/detect/` — windowed idea detection (transcript window, `IdeaDetector`,
+    reconciler, engine) + eval scorers.
+  - `src/server/` — the projector server (Bun + Hono), detection runner, idea
+    builder, and the HTTP/SSE API.
+  - `src/ui/` — the projector UI (React).
+- **`.smithers/`** — Smithers workflows + evals for the idea loop
+  (`workflows/idea-detection.tsx`, `evals/`).
+- **`gesture-wall/`** — vendored gesture-to-wall control software (a Python
+  depth-camera fusion server + a vanilla-JS wall client), an **optional camera
+  mode** (`./run-room.sh --gesture`, one Orbbec Gemini 335 serving both walls) —
+  desk mode below is the zero-hardware default. See
+  [`gesture-wall/VIBERSYN.md`](gesture-wall/VIBERSYN.md).
+
+## Run
+
+- **The whole room, one command:** `./run-room.sh` — builds + serves Vibersyn
+  (bound to `0.0.0.0` so your phone can reach the QR-import page) and opens the
+  UI fullscreen on two walls. **Both walls render the complete 3D room** — all
+  ideas AND all builds — each window with its own independent camera (drag to
+  orbit, scroll to zoom, `f` fit, `z` zen; `?wall=A|B` only labels the window
+  and seeds a different default camera angle so the walls don&#39;t boot
+  pixel-identical). The `?view=ideas|builds` params in the URLs are legacy and
+  no longer filter content. No cameras, no Python — you drive it with mouse,
+  keyboard, and voice. `./r
+…
+
+No specific request was given, so infer the single most valuable addition the repository is currently missing (a natural next feature, a rough edge to smooth, or an obvious enhancement) and build THAT — the smallest coherent slice that fits the existing stack, conventions, and file layout. Do NOT rewrite what is already there — extend it.
+
+A suggested starting point (verify it against the actual code first): Add a visual notification toast to the projector UI that triggers whenever the IdeaDetector identifies a new buildable idea.
+
+Match the project&#39;s existing language, framework, and style; reuse its components and utilities. Keep the addition self-contained and demoable.”</blockquote>
+      <ul class="points">
+        <li>Callsign “vibecode” — process upid-2</li>
+      </ul>
+    </section>
+    <section class="slide" data-slide aria-label="Slide 2 of 7">
+      <p class="kicker">The concept</p>
+      <h1 class="headline">Ghost-Toast: Ambient Alerts for Real-Time Idea Capture</h1>
+      <p class="para">Ghost-Toast: Ambient Idea Notifications for the Vibersyn Projector</p>
+      <ul class="points">
+        <li>Visual pulse notifications when IdeaDetector triggers</li>
+        <li>Non-intrusive toast overlays on the 3D projector walls</li>
+        <li>Direct links from notification to active agent builds</li>
+      </ul>
+    </section>
+    <section class="slide" data-slide aria-label="Slide 3 of 7">
+      <p class="kicker">The mocks</p>
+      <h1 class="headline">One concept mock, live</h1>
+      <div class="mocks" data-mocks>
+        <div class="mock-panels">
+          <div class="mock-panel active" data-mock-panel="native"><iframe class="mock-frame" src="./mocks/native/index.html" title="native concept mock" loading="lazy"></iframe><p class="mock-caption">native · framework concept mock</p></div>
+        </div>
+      </div>
+    </section>
+    <section class="slide question" data-slide data-question-slide aria-label="Slide 4 of 7">
+      <p class="kicker">Question 1 of 3</p>
+      <h1 class="headline">How bold should the first addition be?</h1>
+      <div class="answers" data-answers data-question-id="q-how-bold-should-the-first-additi-2fyv4v" data-answer-endpoint="/api/process/upid-2/answer">
+        <button class="answer" type="button" data-answer="Small safe polish" data-dwell="answer-q-how-bold-should-the-first-additi-2fyv4v-0" aria-label="Answer: Small safe polish">Small safe polish</button>
+        <button class="answer" type="button" data-answer="Solid new feature" data-dwell="answer-q-how-bold-should-the-first-additi-2fyv4v-1" aria-label="Answer: Solid new feature">Solid new feature</button>
+        <button class="answer" type="button" data-answer="Ambitious swing" data-dwell="answer-q-how-bold-should-the-first-additi-2fyv4v-2" aria-label="Answer: Ambitious swing">Ambitious swing</button>
+      </div>
+      <p class="answer-status" data-answer-status role="status" aria-live="polite"></p>
+    </section>
+    <section class="slide question" data-slide data-question-slide aria-label="Slide 5 of 7">
+      <p class="kicker">Question 2 of 3</p>
+      <h1 class="headline">What should it prioritize?</h1>
+      <div class="answers" data-answers data-question-id="q-what-should-it-prioritize-t8iiae" data-answer-endpoint="/api/process/upid-2/answer">
+        <button class="answer" type="button" data-answer="User-facing shine" data-dwell="answer-q-what-should-it-prioritize-t8iiae-0" aria-label="Answer: User-facing shine">User-facing shine</button>
+        <button class="answer" type="button" data-answer="New capability" data-dwell="answer-q-what-should-it-prioritize-t8iiae-1" aria-label="Answer: New capability">New capability</button>
+        <button class="answer" type="button" data-answer="Speed and cleanup" data-dwell="answer-q-what-should-it-prioritize-t8iiae-2" aria-label="Answer: Speed and cleanup">Speed and cleanup</button>
+      </div>
+      <p class="answer-status" data-answer-status role="status" aria-live="polite"></p>
+    </section>
+    <section class="slide question" data-slide data-question-slide aria-label="Slide 6 of 7">
+      <p class="kicker">Question 3 of 3</p>
+      <h1 class="headline">Where should we aim it?</h1>
+      <div class="answers" data-answers data-question-id="q-where-should-we-aim-it-40zwlb" data-answer-endpoint="/api/process/upid-2/answer">
+        <button class="answer" type="button" data-answer="Round out an existing feature" data-dwell="answer-q-where-should-we-aim-it-40zwlb-0" aria-label="Answer: Round out an existing feature">Round out an existing feature</button>
+        <button class="answer" type="button" data-answer="Open a new area" data-dwell="answer-q-where-should-we-aim-it-40zwlb-1" aria-label="Answer: Open a new area">Open a new area</button>
+      </div>
+      <p class="answer-status" data-answer-status role="status" aria-live="polite"></p>
+    </section>
+    <section class="slide" data-slide aria-label="Slide 7 of 7">
+      <p class="kicker">Your call</p>
+      <h1 class="headline">How should we continue?</h1>
+      <div class="take-home-note" data-take-home-note><p class="para">This deck is a take-home — the room is where you decide.</p><p class="para">Back in the room, this idea can be commissioned into a real build, steered with a spoken correction, or parked for later. The idea, its concept, and the mock gallery above travel with this page.</p></div>
+    </section>
+    <footer class="deckbar">
+      <span class="foot" data-testid="slideshow-footer">upid-2 · native · vibecode</span>
+      <span class="dots">
+        <button class="dot active" data-dot type="button" aria-label="Go to slide 1"></button>
+        <button class="dot" data-dot type="button" aria-label="Go to slide 2"></button>
+        <button class="dot" data-dot type="button" aria-label="Go to slide 3"></button>
+        <button class="dot" data-dot type="button" aria-label="Go to slide 4"></button>
+        <button class="dot" data-dot type="button" aria-label="Go to slide 5"></button>
+        <button class="dot" data-dot type="button" aria-label="Go to slide 6"></button>
+        <button class="dot" data-dot type="button" aria-label="Go to slide 7"></button>
+      </span>
+      <span class="counter" data-counter>1 / 7</span>
+    </footer>
+    <script>
+(function () {
+  "use strict";
+  var slides = Array.prototype.slice.call(document.querySelectorAll("[data-slide]"));
+  var dots = Array.prototype.slice.call(document.querySelectorAll("[data-dot]"));
+  var counter = document.querySelector("[data-counter]");
+  var statusEl = document.querySelector("[data-decision-status]");
+  var index = 0;
+  var fromHash = parseInt((location.hash || "").replace("#", ""), 10);
+  if (!isNaN(fromHash) && fromHash >= 1 && fromHash <= slides.length) {
+    index = fromHash - 1;
+  }
+  function show(next) {
+    if (slides.length === 0) {
+      return;
+    }
+    index = Math.max(0, Math.min(slides.length - 1, next));
+    for (var i = 0; i < slides.length; i++) {
+      slides[i].classList.toggle("active", i === index);
+    }
+    for (var j = 0; j < dots.length; j++) {
+      dots[j].classList.toggle("active", j === index);
+    }
+    if (counter) {
+      counter.textContent = (index + 1) + " / " + slides.length;
+    }
+    if (history.replaceState) {
+      history.replaceState(null, "", "#" + (index + 1));
+    }
+  }
+  function closest(node, test) {
+    while (node && node !== document.body) {
+      if (test(node)) {
+        return node;
+      }
+      node = node.parentElement;
+    }
+    return null;
+  }
+  function hasAttr(name) {
+    return function (node) {
+      return node.hasAttribute && node.hasAttribute(name);
+    };
+  }
+  var INTERACTIVE = { A: 1, BUTTON: 1, INPUT: 1, TEXTAREA: 1, SELECT: 1, LABEL: 1, FORM: 1, IFRAME: 1 };
+  document.addEventListener("keydown", function (event) {
+    var tag = event.target && event.target.tagName;
+    if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") {
+      return;
+    }
+    if (event.key === "ArrowRight" || event.key === " " || event.key === "PageDown" || event.key === "Enter") {
+      event.preventDefault();
+      show(index + 1);
+    } else if (event.key === "ArrowLeft" || event.key === "PageUp" || event.key === "Backspace") {
+      event.preventDefault();
+      show(index - 1);
+    } else if (event.key === "Home") {
+      show(0);
+    } else if (event.key === "End") {
+      show(slides.length - 1);
+    }
+  });
+  function setStatus(text, ok) {
+    if (statusEl) {
+      statusEl.textContent = text;
+      statusEl.classList.toggle("ok", !!ok);
+    }
+  }
+  function send(endpoint, body, confirmation, terminalButton) {
+    setStatus("Sending…", false);
+    fetch(endpoint, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(body || {})
+    }).then(function (response) {
+      if (response.ok) {
+        setStatus(confirmation, true);
+        if (terminalButton) {
+          var all = document.querySelectorAll("[data-decision]");
+          for (var i = 0; i < all.length; i++) {
+            all[i].disabled = true;
+            all[i].classList.toggle("chosen", all[i] === terminalButton);
+          }
+        }
+      } else {
+        setStatus("The room said no (HTTP " + response.status + ") — try again.", false);
+      }
+    }, function () {
+      setStatus("Could not reach the room — is the server running?", false);
+    });
+  }
+  function switchMockTab(tab) {
+    var mockId = tab.getAttribute("data-mock-tab");
+    var root = closest(tab, hasAttr("data-mocks"));
+    if (!root) {
+      return;
+    }
+    var tabs = root.querySelectorAll("[data-mock-tab]");
+    for (var t = 0; t < tabs.length; t++) {
+      tabs[t].classList.toggle("active", tabs[t] === tab);
+    }
+    var panels = root.querySelectorAll("[data-mock-panel]");
+    for (var p = 0; p < panels.length; p++) {
+      panels[p].classList.toggle("active", panels[p].getAttribute("data-mock-panel") === mockId);
+    }
+  }
+  function activateDecision(decision) {
+    if (decision.getAttribute("data-prompt") === "1") {
+      var form = document.querySelector('[data-decision-form="' + decision.getAttribute("data-decision") + '"]');
+      if (form) {
+        form.hidden = !form.hidden;
+        if (!form.hidden) {
+          var promptInput = form.querySelector("[data-decision-input]");
+          if (promptInput) {
+            promptInput.focus();
+          }
+        }
+      }
+    } else {
+      send(
+        decision.getAttribute("data-endpoint"),
+        {},
+        decision.getAttribute("data-confirmation"),
+        decision.getAttribute("data-terminal") === "1" ? decision : null
+      );
+    }
+  }
+  // Swipe-to-answer. Highlight the chosen option, echo it into the card's own
+  // status line, and POST {questionId, answer} to the group's endpoint. The POST
+  // is best-effort: no endpoint (or a 404 in the published standalone copy) just
+  // means the local selection stands — never an error.
+  function selectAnswer(button) {
+    var group = closest(button, hasAttr("data-answers"));
+    if (!group) {
+      return;
+    }
+    var options = group.querySelectorAll("[data-answer]");
+    for (var i = 0; i < options.length; i++) {
+      options[i].classList.toggle("chosen", options[i] === button);
+    }
+    var answer = button.getAttribute("data-answer");
+    var card = closest(group, hasAttr("data-question-slide"));
+    var answerStatus = card ? card.querySelector("[data-answer-status]") : null;
+    if (answerStatus) {
+      answerStatus.textContent = "You picked: " + answer;
+      answerStatus.classList.add("ok");
+    }
+    postAnswer(group.getAttribute("data-answer-endpoint"), group.getAttribute("data-question-id"), answer);
+  }
+  function postAnswer(endpoint, questionId, answer) {
+    if (!endpoint) {
+      return;
+    }
+    try {
+      fetch(endpoint, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ questionId: questionId, answer: answer })
+      }).then(function () {}, function () {});
+    } catch (err) {
+      // Standalone/published copy with no room API — the local highlight stands.
+    }
+  }
+  var suppressClicksUntil = 0;
+  document.addEventListener("click", function (event) {
+    if (Date.now() < suppressClicksUntil) {
+      suppressClicksUntil = 0;
+      return;
+    }
+    var answer = closest(event.target, hasAttr("data-answer"));
+    if (answer && !answer.disabled) {
+      selectAnswer(answer);
+      return;
+    }
+    var tab = closest(event.target, hasAttr("data-mock-tab"));
+    if (tab) {
+      switchMockTab(tab);
+      return;
+    }
+    var decision = closest(event.target, hasAttr("data-decision"));
+    if (decision && !decision.disabled) {
+      activateDecision(decision);
+      return;
+    }
+    if (closest(event.target, function (node) { return INTERACTIVE[node.tagName] === 1; })) {
+      return;
+    }
+    if (event.clientX < window.innerWidth * 0.3) {
+      show(index - 1);
+    } else {
+      show(index + 1);
+    }
+  });
+  document.addEventListener("submit", function (event) {
+    var form = event.target;
+    if (!form.hasAttribute || !form.hasAttribute("data-decision-form")) {
+      return;
+    }
+    event.preventDefault();
+    var input = form.querySelector("[data-decision-input]");
+    var text = input ? input.value.trim() : "";
+    if (text.length === 0) {
+      setStatus("Type a correction first — or just say it out loud.", false);
+      return;
+    }
+    var body = {};
+    body[form.getAttribute("data-field") || "text"] = text;
+    send(form.getAttribute("data-endpoint"), body, form.getAttribute("data-confirmation"), null);
+    form.hidden = true;
+    if (input) {
+      input.value = "";
+    }
+  });
+  // Horizontal swipe: one clear drag = one slide (momentum-free). A swipe that
+  // begins on an answer/decision/mock option selects it (so you can flick a card
+  // to answer it); a swipe on any other interactive element is left alone; a
+  // swipe over empty deck space navigates. Ghost clicks trailing a drag are
+  // suppressed briefly so nothing fires twice. Uses Pointer Events when present
+  // (mouse + touch + pen, incl. touch walls) with a touch/mouse fallback for
+  // older iOS Safari.
+  var SWIPE_MIN = 45;
+  var swipeActive = false;
+  var swipeX = 0;
+  var swipeY = 0;
+  var swipeEl = null;
+  function swipePoint(event) {
+    if (event.changedTouches && event.changedTouches.length) {
+      return event.changedTouches[0];
+    }
+    if (event.touches && event.touches.length) {
+      return event.touches[0];
+    }
+    return event;
+  }
+  function swipeStart(event) {
+    if ((event.button || 0) !== 0) {
+      return;
+    }
+    var p = swipePoint(event);
+    swipeActive = true;
+    swipeX = p.clientX;
+    swipeY = p.clientY;
+    swipeEl = event.target;
+  }
+  function swipeEnd(event) {
+    if (!swipeActive) {
+      return;
+    }
+    swipeActive = false;
+    var p = swipePoint(event);
+    var dx = p.clientX - swipeX;
+    var dy = p.clientY - swipeY;
+    if (Math.abs(dx) < SWIPE_MIN || Math.abs(dx) <= Math.abs(dy)) {
+      return;
+    }
+    var option = closest(swipeEl, function (node) {
+      return node.hasAttribute && (node.hasAttribute("data-answer") || node.hasAttribute("data-decision") || node.hasAttribute("data-mock-tab"));
+    });
+    if (option) {
+      if (option.disabled) {
+        return;
+      }
+      suppressClicksUntil = Date.now() + 400;
+      if (option.hasAttribute("data-answer")) {
+        selectAnswer(option);
+      } else if (option.hasAttribute("data-mock-tab")) {
+        switchMockTab(option);
+      } else {
+        activateDecision(option);
+      }
+      return;
+    }
+    if (closest(swipeEl, function (node) { return INTERACTIVE[node.tagName] === 1; })) {
+      return;
+    }
+    suppressClicksUntil = Date.now() + 400;
+    show(dx < 0 ? index + 1 : index - 1);
+  }
+  function swipeCancel() {
+    swipeActive = false;
+  }
+  if (window.PointerEvent) {
+    document.addEventListener("pointerdown", swipeStart);
+    document.addEventListener("pointerup", swipeEnd);
+    document.addEventListener("pointercancel", swipeCancel);
+  } else {
+    document.addEventListener("touchstart", swipeStart, { passive: true });
+    document.addEventListener("touchend", swipeEnd);
+    document.addEventListener("touchcancel", swipeCancel);
+    document.addEventListener("mousedown", swipeStart);
+    document.addEventListener("mouseup", swipeEnd);
+  }
+  for (var d = 0; d < dots.length; d++) {
+    (function (i) {
+      dots[i].addEventListener("click", function () {
+        show(i);
+      });
+    })(d);
+  }
+  show(index);
+})();
+    </script>
+  </body>
+</html>
